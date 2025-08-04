@@ -3,14 +3,14 @@ import {
   createHelper,
   updateHelper,
   deleteHelper,
-  getAllHelpersMetaData,
   getHelperById,
+  getAllHelpers,
 } from "../controllers/helper-controller";
 
 const helpersRouter = express.Router();
 
 helpersRouter.post("/", createHelper);
-helpersRouter.get("/", getAllHelpersMetaData);
+helpersRouter.get("/", getAllHelpers);
 helpersRouter.get("/:id", getHelperById);
 helpersRouter.put("/:id", updateHelper);
 helpersRouter.delete("/:id", deleteHelper);

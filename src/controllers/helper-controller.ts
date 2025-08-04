@@ -3,6 +3,157 @@ import { Helper, IHelper } from "../models/helper-model";
 
 import { Employee, IEmployee } from "../models/employee-model";
 
+/* Employee Collection
+
+_id
+688db9b7a96e1b84a3c63ba9
+ObjectId
+
+employeeId
+EMP-105
+String
+
+employeeName
+Meera Reddy
+String
+
+employeeDepartment
+Maintenance
+String
+
+employeephotoUrl
+https://randomuser.me/api/portraits/women/8.jpg
+String
+
+identificationCardUrl
+https://cdn.example.com/idcards/emp105.png
+String
+
+createdAt
+2025-08-01T07:23:22.444+00:00
+Date
+
+updatedAt
+2025-08-01T07:23:22.444+00:00
+Date
+
+__v
+0
+Int32
+
+
+*/
+
+
+/* Helper Collection
+
+_id
+688dba24a96e1b84a3c63baa
+ObjectId
+
+personalDetails
+Object
+
+Object
+
+fullName
+Tanya Mehta
+String
+
+gender
+Female
+String
+
+languages
+Array (2)
+
+Array
+0
+Gujarati
+String
+1
+English
+String
+
+phone
+9876543298
+String
+
+email
+tanya.mehta@example.com
+String
+
+kycDocument
+Object
+
+Object
+type
+Aadhar Card
+String
+
+url
+https://kyc.example.com/tanya_aadhar.pdf
+String
+
+additionalDocuments
+Array (empty)
+
+Array
+
+serviceDetails
+Object
+
+Object
+type
+Maid
+
+String
+organization
+CareWell Hospital
+
+String
+
+assignedHouseholds
+Array (1)
+
+Array
+0
+HH-1800
+
+String
+joinedOn
+2023-08-30T00:00:00.000+00:00
+
+Date
+
+vehicleDetails
+Object
+
+Object
+type
+None
+String
+
+employee
+688c6b6a39a3dd9fdb50b42e
+ObjectId
+
+createdAt
+2025-08-01T07:23:23.091+00:00
+Date
+
+updatedAt
+2025-08-01T07:23:23.091+00:00
+Date
+
+__v
+0
+Int32
+
+
+
+*/
+
 export const createHelper = async (req: Request, res: Response) => {
   try {
     const { personalDetails, serviceDetails, vehicleDetails, employeeDetails } =
@@ -41,7 +192,11 @@ export const createHelper = async (req: Request, res: Response) => {
 };
 
 export const getAllHelpers = async (_: Request, res: Response) => {
-  const helpers = await Helper.find();
+  const helpers = await Helper.find()
+    .populate(
+      "employee",
+      "employeeId employeephotoUrl identificationCardUrl"
+    );
   console.log(helpers);
   res.json(helpers);
 };
@@ -100,3 +255,4 @@ export const deleteHelper = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Delete Failed" });
   }
 };
+

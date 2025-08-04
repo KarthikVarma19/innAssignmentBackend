@@ -10,12 +10,17 @@ dotenv.config();
 
 import { config } from "./env";
 
-// route imports
-import helperRoute from "./routes/helper-route";
 
 //db
 import { connectDB } from "./config/db";
+// cloudinary
+import { connectCloudinary } from "./config/cloud-uploads";
+// routes
+import uploadsRouter from "./routes/upload-routes";
+import helpersRouter from "./routes/helper-route";
+
 connectDB();
+connectCloudinary();
 
 const app: Application = express();
 const PORT = config.PORT;
@@ -28,6 +33,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+
+app.use((req, res, next) => {
+  console.log(req.body, req.file, req.files);
+  next();
+});
+
 app.get("/test", (_req: Request, _res: Response) => {
   _res.status(200).json({
     status: "ok",
@@ -35,13 +46,19 @@ app.get("/test", (_req: Request, _res: Response) => {
   });
 });
 
-app.use("/api/helpers", helperRoute);
+app.use("/api/helpers", helpersRouter);
+app.use("/api/upload", uploadsRouter);
 
 app.use("*", (_req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
+
+
+
 // Server listener
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+
+
