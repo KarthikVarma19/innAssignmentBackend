@@ -3,6 +3,8 @@ import mongoose, { Schema, Document } from "mongoose";
 interface IKYCDocument {
   type: string;
   url: string;
+  filename: string;
+  filesize: number;
 }
 
 interface IAdditionalDocument {
@@ -49,15 +51,17 @@ const HelperSchema: Schema = new Schema<IHelper>(
         required: true,
       },
       languages: [{ type: String }],
-      phone: { type: String, required: true, unique: true },
-      email: { type: String, required: true, unique: true },
+      phone: { type: String, required: true },
+      email: { type: String, required: true },
       kycDocument: {
         type: {
           type: String,
-          enum: ["Aadhar Card", "Pan Card", "Voter Id", "Passport"],
+          enum: ["Aadhar Card", "PAN Card", "Voter ID", "Passport"],
           required: true,
         },
         url: { type: String, required: true },
+        filename: { type: String, required: true },
+        filesize: { type: Number, required: true },
       },
       additionalDocuments: [
         {
@@ -69,7 +73,7 @@ const HelperSchema: Schema = new Schema<IHelper>(
     serviceDetails: {
       type: {
         type: String,
-        enum: ["Maid", "Cook", "Nurse", "Doctor"],
+        enum: ["Maid", "Cook", "Nurse", "Driver"],
         required: true,
       },
       organization: { type: String, required: true },

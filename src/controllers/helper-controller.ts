@@ -2,201 +2,207 @@ import { Response, Request } from "express";
 import { Helper, IHelper } from "../models/helper-model";
 
 import { Employee, IEmployee } from "../models/employee-model";
+import { Counter } from "../models/counter-model";
 
-/* Employee Collection
-
-_id
-688db9b7a96e1b84a3c63ba9
-ObjectId
-
-employeeId
-EMP-105
-String
-
-employeeName
-Meera Reddy
-String
-
-employeeDepartment
-Maintenance
-String
-
-employeephotoUrl
-https://randomuser.me/api/portraits/women/8.jpg
-String
-
-identificationCardUrl
-https://cdn.example.com/idcards/emp105.png
-String
-
-createdAt
-2025-08-01T07:23:22.444+00:00
-Date
-
-updatedAt
-2025-08-01T07:23:22.444+00:00
-Date
-
-__v
-0
-Int32
-
-
-*/
-
-
-/* Helper Collection
-
-_id
-688dba24a96e1b84a3c63baa
-ObjectId
-
-personalDetails
-Object
-
-Object
-
-fullName
-Tanya Mehta
-String
-
-gender
-Female
-String
-
-languages
-Array (2)
-
-Array
-0
-Gujarati
-String
-1
-English
-String
-
-phone
-9876543298
-String
-
-email
-tanya.mehta@example.com
-String
-
-kycDocument
-Object
-
-Object
-type
-Aadhar Card
-String
-
-url
-https://kyc.example.com/tanya_aadhar.pdf
-String
-
-additionalDocuments
-Array (empty)
-
-Array
-
-serviceDetails
-Object
-
-Object
-type
-Maid
-
-String
-organization
-CareWell Hospital
-
-String
-
-assignedHouseholds
-Array (1)
-
-Array
-0
-HH-1800
-
-String
-joinedOn
-2023-08-30T00:00:00.000+00:00
-
-Date
-
-vehicleDetails
-Object
-
-Object
-type
-None
-String
-
-employee
-688c6b6a39a3dd9fdb50b42e
-ObjectId
-
-createdAt
-2025-08-01T07:23:23.091+00:00
-Date
-
-updatedAt
-2025-08-01T07:23:23.091+00:00
-Date
-
-__v
-0
-Int32
-
-
-
-*/
 
 export const createHelper = async (req: Request, res: Response) => {
+  /*
+
+  {
+    personalDetails: {
+      kycDocument: {
+        type: 'PAN Card',
+        url: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754557244/inn-assignment/user_pdfs/GS-EEA-02-2526.pdf',
+        filesize: 4107079,
+        filename: 'GS-EEA-02-2526.pdf'
+      },
+      fullName: 'Karthik Varma Ganaraju',
+      gender: 'male',
+      languages: [ 'Telugu' ],
+      phone: '91919676502330',
+      email: 'ganarajukarthikvarma.le23.it@anits.edu.in',
+      additionalDocuments: []
+    },
+    serviceDetails: {
+      type: 'Cook',
+      organization: 'Springs Helpers',
+      assignedHouseholds: [],
+      joinedOn: '07/08/2025'
+    },
+    vehicleDetails: { type: 'None' },
+    employee: {
+      employeephotoUrl: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754560628/inn-assignment/user_images/Karthik%20Varma%20Ganaraju.jpg'
+    }
+  }
+
+  const EmployeeSchema: Schema = new Schema(
+    {
+      employeeId: { type: Number, unique: true, index: true },
+      employeeName: { type: String, required: true },
+      employeeDepartment: { type: String, required: true, index: true },
+      employeephotoUrl: { type: String, required: true },
+      identificationCardUrl: { type: String, required: true },
+    },
+    {
+      timestamps: true,
+    }
+  );
+  const HelperSchema: Schema = new Schema<IHelper>(
+    {
+      personalDetails: {
+        fullName: { type: String, required: true },
+        gender: {
+          type: String,
+          enum: ["Male", "Female", "Other"],
+          required: true,
+        },
+        languages: [{ type: String }],
+        phone: { type: String, required: true, unique: true },
+        email: { type: String, required: true, unique: true },
+        kycDocument: {
+          type: {
+            type: String,
+            enum: ["Aadhar Card", "Pan Card", "Voter Id", "Passport"],
+            required: true,
+          },
+          url: { type: String, required: true },
+        },
+        additionalDocuments: [
+          {
+            name: { type: String },
+            url: { type: String },
+          },
+        ],
+      },
+      serviceDetails: {
+        type: {
+          type: String,
+          enum: ["Maid", "Cook", "Nurse", "Doctor"],
+          required: true,
+        },
+        organization: { type: String, required: true },
+        assignedHouseholds: [{ type: String }],
+        joinedOn: { type: Date, required: true },
+      },
+      vehicleDetails: {
+        type: {
+          type: String,
+          enum: ["None", "Auto", "Bike", "Car"],
+          required: true,
+        },
+        number: { type: String },
+      },
+      employee: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee",
+        required: true,
+      },
+    },
+    { timestamps: true }
+  );
+
+  */
   try {
-    const { personalDetails, serviceDetails, vehicleDetails, employeeDetails } =
+    const { personalDetails, serviceDetails, vehicleDetails, employee } =
       req.body;
 
-    const newEmployee: Partial<IEmployee> = {
-      employeeId: employeeDetails.employeeId,
+    console.log(req.body);
+
+    /*
+    {
+      personalDetails: {
+        kycDocument: {
+          type: 'PAN Card',
+          url: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754563185/inn-assignment/user_pdfs/GS-EEA-02-2526.pdf',
+          filesize: 4107079,
+          filename: 'GS-EEA-02-2526.pdf'
+        },
+        fullName: 'Karthik Varma Ganaraju',
+        gender: 'male',
+        languages: [ 'Telugu' ],
+        phone: '91919676502330',
+        email: 'ganarajukarthikvarma.le23.it@anits.edu.in',
+        additionalDocuments: []
+      },
+      serviceDetails: {
+        type: 'Cook',
+        organization: 'Springs Helpers',
+        assignedHouseholds: [],
+        joinedOn: '07/08/2025'
+      },
+      vehicleDetails: { type: 'None' },
+      employee: {
+        employeephotoUrl: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754563184/inn-assignment/user_images/Karthik%20Varma%20Ganaraju.jpg'
+      }
+    }
+
+
+    */
+
+    // Parse joinedOn to Date if it's a string
+    if (serviceDetails && typeof serviceDetails.joinedOn === "string") {
+      serviceDetails.joinedOn = new Date(serviceDetails.joinedOn);
+    }
+
+    const employeeId = await getNextEmployeeId();
+    const newEmployee = new Employee({
+      employeeId: employeeId,
       employeeName: personalDetails.fullName,
-      employeeDepartment: employeeDetails.employeeDepartment,
-      employeephotoUrl: employeeDetails.employeePhotoUrl,
-      identificationCardUrl: employeeDetails.identificationCardUrl,
-    };
+      employeeDepartment: "Helpers",
+      employeephotoUrl: employee.employeephotoUrl,
+      identificationCardUrl: "N/A",
+    });
 
-    // Step 1: Save employee details first
-    const createdEmployee = await Employee.create(newEmployee);
+    const createdEmployee = await newEmployee.save();
 
-    const newHelper: Partial<IHelper> = {
-      personalDetails,
-      serviceDetails,
-      vehicleDetails,
-      employee: createdEmployee._id, // Reference
-    };
+    const newHelper = new Helper({
+      personalDetails: {
+        fullName: personalDetails.fullName,
+        gender: personalDetails.gender,
+        languages: personalDetails.languages,
+        phone: personalDetails.phone,
+        email: personalDetails.email,
+        kycDocument: {
+          type: personalDetails.kycDocument.type,
+          url: personalDetails.kycDocument.url,
+          filename: personalDetails.kycDocument.filename,
+          filesize: personalDetails.kycDocument.filesize,
+        },
+        additionalDocuments: personalDetails.additionalDocuments || [],
+      },
+      serviceDetails: {
+        type: serviceDetails.type,
+        organization: serviceDetails.organization,
+        assignedHouseholds: serviceDetails.assignedHouseholds || [],
+        joinedOn: serviceDetails.joinedOn,
+      },
+      vehicleDetails: {
+        type: vehicleDetails.type,
+        number: vehicleDetails.number || "",
+      },
+      employee: createdEmployee._id,
+    });
 
-    console.log(newHelper);
-
-    // Step 2: Save helper with reference to employee
-    const helper = await Helper.create(newHelper);
+    const createdHelper = await newHelper.save();
 
     return res.status(201).json({
       message: "Helper created successfully",
-      data: helper,
+      data: {
+        helper: createHelper,
+        employee: createdEmployee
+      }
     });
   } catch (error) {
+    console.error("Post Error", error);
     res.status(500).json({ error: "Failed to create helper" });
   }
 };
 
 export const getAllHelpers = async (_: Request, res: Response) => {
-  const helpers = await Helper.find()
-    .populate(
-      "employee",
-      "employeeId employeephotoUrl identificationCardUrl"
-    );
+  const helpers = await Helper.find().populate(
+    "employee",
+    "employeeId employeephotoUrl identificationCardUrl"
+  );
   console.log(helpers);
   res.json(helpers);
 };
@@ -223,7 +229,11 @@ export const getAllHelpersMetaData = async (req: Request, res: Response) => {
 
 export const getHelperById = async (req: Request, res: Response) => {
   try {
-    const helper = await Helper.find({ _id: req.params.id });
+    const helper = await Helper.findById(req.params.id)
+      .populate("employee", "employeeName employeephotoUrl identificationCardUrl employeeId");
+    if (!helper) {
+      return res.status(404).json({ error: "Helper not found" });
+    }
     res.status(200).json({ data: helper });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch helper by id" });
@@ -231,6 +241,7 @@ export const getHelperById = async (req: Request, res: Response) => {
 };
 
 export const updateHelper = async (req: Request, res: Response) => {
+
   try {
     const updated = await Helper.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -243,16 +254,27 @@ export const updateHelper = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteHelper = async (req: Request, res: Response) => {
+export const deleteHelperById = async (req: Request, res: Response) => {
+  console.log("deleted controller");
   console.log(req.params.id);
+  const id = req.params.id;
   try {
-    const deleted = await Helper.findByIdAndDelete(req.params.id);
+    const deleted = await Helper.findOneAndDelete({ _id: id });
     if (!deleted) {
       return res.status(404).json({ error: "Helper not found" });
-      res.json({ message: "Helper Deleted" });
     }
+    res.json({ message: "Helper Deleted", data: deleted });
   } catch (error) {
     res.status(500).json({ error: "Delete Failed" });
   }
 };
 
+
+const getNextEmployeeId = async (): Promise<number> => {
+  const counter = await Counter.findByIdAndUpdate(
+    { _id: "employeeId" },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return counter.seq;
+};

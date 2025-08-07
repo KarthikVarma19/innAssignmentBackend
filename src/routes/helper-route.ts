@@ -2,17 +2,19 @@ import express from "express";
 import {
   createHelper,
   updateHelper,
-  deleteHelper,
+  deleteHelperById,
   getHelperById,
   getAllHelpers,
 } from "../controllers/helper-controller";
+import { downloadIdCard } from "../controllers/idcard-controller";
 
 const helpersRouter = express.Router();
 
-helpersRouter.post("/", createHelper);
-helpersRouter.get("/", getAllHelpers);
+helpersRouter.get("/id", downloadIdCard);
+helpersRouter.delete("/:id", deleteHelperById);
 helpersRouter.get("/:id", getHelperById);
 helpersRouter.put("/:id", updateHelper);
-helpersRouter.delete("/:id", deleteHelper);
+helpersRouter.post("/", createHelper);
+helpersRouter.get("/", getAllHelpers);
 
 export default helpersRouter;

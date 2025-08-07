@@ -33,9 +33,12 @@ export const uploadImage = async (filePath: string) => {
 export const uploadPdf = async (filePath: string) => {
   return await cloudinary.uploader.upload(filePath, {
     folder: "inn-assignment/user_pdfs",
-    resource_type: "raw",
+    resource_type: "auto",
     use_filename: true,
     unique_filename: true,
+    type: "authenticated",
+    sign_url: true,
+    secure: true,
   });
 };
 
@@ -43,15 +46,29 @@ export const uploadPdf = async (filePath: string) => {
 
 export const uploadToCloudinary = async (
   fileBuffer: Buffer,
-  folder: string
+  folder: string,
+  originalname: string
 ): Promise<string> => {
+  const filenameWithoutExt = originalname.replace(/\.[^/.]+$/, "");
+  
   return new Promise((resolve, reject) => {
     cloudinary.uploader
-      .upload_stream({ folder }, (error, result) => {
-        if (error) return reject(error);
-        if (result?.secure_url) return resolve(result.secure_url);
-        reject("Unknown error");
-      })
+      .upload_stream(
+        {
+          resource_type: folder === "pdfs" ? "auto" : "image",
+          folder: `inn-assignment/user_${folder}`,
+          use_filename: true,
+          public_id: filenameWithoutExt, // Important
+          type: "upload",
+          sign_url: true,
+          secure: true,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          if (result?.secure_url) return resolve(result?.secure_url);
+          reject("Unknown error");
+        }
+      )
       .end(fileBuffer);
   });
 };

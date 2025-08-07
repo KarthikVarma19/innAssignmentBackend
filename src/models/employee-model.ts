@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 export interface IEmployee {
-  employeeId: string;
+  employeeId: number;
   employeeName: string;
   employeeDepartment: string;
   employeephotoUrl: string;
@@ -10,7 +10,7 @@ export interface IEmployee {
 
 const EmployeeSchema: Schema = new Schema(
   {
-    employeeId: { type: String, required: true, unique: true, index: true },
+    employeeId: { type: Number, unique: true, index: true , required: true},
     employeeName: { type: String, required: true },
     employeeDepartment: { type: String, required: true, index: true },
     employeephotoUrl: { type: String, required: true },
