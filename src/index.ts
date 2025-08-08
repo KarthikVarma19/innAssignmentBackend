@@ -11,17 +11,19 @@ dotenv.config();
 
 import { config } from "./env";
 
-
 //db
-import { connectDB } from "./config/db";
+import { connectDB } from "./config/db.config";
 // cloudinary
-import { connectCloudinary } from "./config/cloud-uploads";
+import { connectCloudinary } from "./config/cloudinary.config";
 // routes
-import uploadsRouter from "./routes/upload-routes";
-import helpersRouter from "./routes/helper-route";
+import uploadsRouter from "./routes/upload.routes";
+import helpersRouter from "./routes/helper.routes";
+import { checkSupabaseConnection } from "./config/supabase.config";
 
+// connect databases
 connectDB();
 connectCloudinary();
+checkSupabaseConnection();
 
 const app: Application = express();
 const PORT = config.PORT;
@@ -33,7 +35,6 @@ app.use(morgan("dev"));
 
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
-
 
 // Routes
 
@@ -60,5 +61,3 @@ app.use("*", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
-
-

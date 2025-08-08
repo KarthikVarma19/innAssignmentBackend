@@ -1,3 +1,5 @@
+// DB connection logic
+
 import mongoose from "mongoose";
 import { config } from "../env";
 

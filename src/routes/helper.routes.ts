@@ -5,8 +5,8 @@ import {
   deleteHelperById,
   getHelperById,
   getAllHelpers,
-} from "../controllers/helper-controller";
-import { downloadIdCard } from "../controllers/idcard-controller";
+} from "../controllers/helper.controller";
+import { downloadIdCard } from "../controllers/idcard.controller";
 
 const helpersRouter = express.Router();
 

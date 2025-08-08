@@ -1,143 +1,17 @@
 import { Response, Request } from "express";
-import { Helper, IHelper } from "../models/helper-model";
+import { Helper, IHelper } from "../models/helper.model";
 
-import { Employee, IEmployee } from "../models/employee-model";
-import { Counter } from "../models/counter-model";
+import { Employee, IEmployee } from "../models/employee.model";
+import { Counter } from "../models/counter.model";
 
 
 export const createHelper = async (req: Request, res: Response) => {
-  /*
 
-  {
-    personalDetails: {
-      kycDocument: {
-        type: 'PAN Card',
-        url: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754557244/inn-assignment/user_pdfs/GS-EEA-02-2526.pdf',
-        filesize: 4107079,
-        filename: 'GS-EEA-02-2526.pdf'
-      },
-      fullName: 'Karthik Varma Ganaraju',
-      gender: 'male',
-      languages: [ 'Telugu' ],
-      phone: '91919676502330',
-      email: 'ganarajukarthikvarma.le23.it@anits.edu.in',
-      additionalDocuments: []
-    },
-    serviceDetails: {
-      type: 'Cook',
-      organization: 'Springs Helpers',
-      assignedHouseholds: [],
-      joinedOn: '07/08/2025'
-    },
-    vehicleDetails: { type: 'None' },
-    employee: {
-      employeephotoUrl: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754560628/inn-assignment/user_images/Karthik%20Varma%20Ganaraju.jpg'
-    }
-  }
-
-  const EmployeeSchema: Schema = new Schema(
-    {
-      employeeId: { type: Number, unique: true, index: true },
-      employeeName: { type: String, required: true },
-      employeeDepartment: { type: String, required: true, index: true },
-      employeephotoUrl: { type: String, required: true },
-      identificationCardUrl: { type: String, required: true },
-    },
-    {
-      timestamps: true,
-    }
-  );
-  const HelperSchema: Schema = new Schema<IHelper>(
-    {
-      personalDetails: {
-        fullName: { type: String, required: true },
-        gender: {
-          type: String,
-          enum: ["Male", "Female", "Other"],
-          required: true,
-        },
-        languages: [{ type: String }],
-        phone: { type: String, required: true, unique: true },
-        email: { type: String, required: true, unique: true },
-        kycDocument: {
-          type: {
-            type: String,
-            enum: ["Aadhar Card", "Pan Card", "Voter Id", "Passport"],
-            required: true,
-          },
-          url: { type: String, required: true },
-        },
-        additionalDocuments: [
-          {
-            name: { type: String },
-            url: { type: String },
-          },
-        ],
-      },
-      serviceDetails: {
-        type: {
-          type: String,
-          enum: ["Maid", "Cook", "Nurse", "Doctor"],
-          required: true,
-        },
-        organization: { type: String, required: true },
-        assignedHouseholds: [{ type: String }],
-        joinedOn: { type: Date, required: true },
-      },
-      vehicleDetails: {
-        type: {
-          type: String,
-          enum: ["None", "Auto", "Bike", "Car"],
-          required: true,
-        },
-        number: { type: String },
-      },
-      employee: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Employee",
-        required: true,
-      },
-    },
-    { timestamps: true }
-  );
-
-  */
   try {
     const { personalDetails, serviceDetails, vehicleDetails, employee } =
       req.body;
 
     console.log(req.body);
-
-    /*
-    {
-      personalDetails: {
-        kycDocument: {
-          type: 'PAN Card',
-          url: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754563185/inn-assignment/user_pdfs/GS-EEA-02-2526.pdf',
-          filesize: 4107079,
-          filename: 'GS-EEA-02-2526.pdf'
-        },
-        fullName: 'Karthik Varma Ganaraju',
-        gender: 'male',
-        languages: [ 'Telugu' ],
-        phone: '91919676502330',
-        email: 'ganarajukarthikvarma.le23.it@anits.edu.in',
-        additionalDocuments: []
-      },
-      serviceDetails: {
-        type: 'Cook',
-        organization: 'Springs Helpers',
-        assignedHouseholds: [],
-        joinedOn: '07/08/2025'
-      },
-      vehicleDetails: { type: 'None' },
-      employee: {
-        employeephotoUrl: 'https://res.cloudinary.com/karthikvarma/image/upload/v1754563184/inn-assignment/user_images/Karthik%20Varma%20Ganaraju.jpg'
-      }
-    }
-
-
-    */
 
     // Parse joinedOn to Date if it's a string
     if (serviceDetails && typeof serviceDetails.joinedOn === "string") {

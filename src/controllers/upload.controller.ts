@@ -1,11 +1,6 @@
-import { uploadPdf, uploadImage } from '../config/cloud-uploads';
+import { uploadPdf, uploadImage } from "../config/cloudinary.config";
 import fs from "fs";
-import {
-  Request as ExpressRequest,
-  Response as ExpressResponse,
-} from "express";
-
-
+import { Request as ExpressRequest, Response as ExpressResponse } from "express";
 
 export const uploadImageHandler = async (
   req: ExpressRequest,
@@ -34,8 +29,8 @@ export const uploadPdfHandler = async (
       return;
     }
     const result = await uploadPdf(req.file.path);
-      fs.unlinkSync(req.file.path);
-    console.log()
+    fs.unlinkSync(req.file.path);
+    console.log();
     res.json({ success: true, url: result.secure_url, result: result });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });

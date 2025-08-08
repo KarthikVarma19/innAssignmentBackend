@@ -10,10 +10,13 @@ export interface IEmployee {
 
 const EmployeeSchema: Schema = new Schema(
   {
-    employeeId: { type: Number, unique: true, index: true , required: true},
+    employeeId: { type: Number, unique: true, index: true, required: true },
     employeeName: { type: String, required: true },
     employeeDepartment: { type: String, required: true, index: true },
-    employeephotoUrl: { type: String, required: true },
+    employeephotoUrl: {
+      type: String,
+      required: true,
+    },
     identificationCardUrl: { type: String, required: true },
   },
   {
