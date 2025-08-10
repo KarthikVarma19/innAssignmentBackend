@@ -11,7 +11,7 @@ interface UserData {
 }
 
 export async function generatePdf(userData: UserData): Promise<Buffer> {
-  const filePath = join(__dirname, "../templates/id-card.ejs");
+  const filePath = join(__dirname, "../views/helperIdCard.ejs");
 
   const html = await renderFile(filePath, { user: userData });
 

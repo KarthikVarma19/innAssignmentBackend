@@ -40,30 +40,41 @@ uploadRouter.post(
       // Ensure req.files is defined and has the expected structure
       const files = (req.files as { [fieldname: string]: Express.Multer.File[] }) || {};
       let profilePicFile: Express.Multer.File | undefined;
+      let kycDocumentFile: Express.Multer.File | undefined;
+
+      let additionalDocumentFiles: Express.Multer.File[] = [];
+
       if (files.profilePic && files.profilePic.length > 0) {
         profilePicFile = files.profilePic[0];
       }
-      const kycDocumentFile = files.kycDocument[0];
-      const additionalDocumentFiles = Array.isArray(files.additionalDocuments)
-        ? files.additionalDocuments
-        : [];
+
+      if (files.kycDocument && files.kycDocument.length > 0) {
+        kycDocumentFile = files.kycDocument[0];
+      }
+
+      if (files.additionalDocuments && files.additionalDocuments.length > 0) {
+        additionalDocumentFiles = files.additionalDocuments;
+      }
 
       // Compress profilePicFile if it exists
       if (profilePicFile) {
         profilePicFile.buffer = await compressImageBufferToBuffer(profilePicFile.buffer);
       }
 
-      // Compress kycDocumentFile
+      // Compress kycDocumentFile if it exists
       if (kycDocumentFile) {
         kycDocumentFile.buffer = await compressPdfBufferToBuffer(kycDocumentFile.buffer);
       }
 
-      // Compress each additionalDocumentFile
-      for (const additonalDocumentFile of additionalDocumentFiles) {
-        additonalDocumentFile.buffer = await compressPdfBufferToBuffer(
-          additonalDocumentFile.buffer
-        );
+      // Compress Additional Documents if it exits
+      if (additionalDocumentFiles.length > 0) {
+        for (const additionalDocumentFile of additionalDocumentFiles) {
+          additionalDocumentFile.buffer = await compressPdfBufferToBuffer(
+            additionalDocumentFile.buffer
+          );
+        }
       }
+
 
       let cloudinaryProfilePicUrl: string = "";
       if (profilePicFile) {
@@ -75,13 +86,18 @@ uploadRouter.post(
       }
       // profile pics link
 
-      const supabaseKYCDocumentUrl = await SupabaseService.uploadFile(
-        kycDocumentFile,
-        kycDocumentFile.originalname,
-        "application/pdf",
-        config.SUPABASE_BUCKET_NAME,
-        config.SUPABASE_HELPER_KYCDOCUMENTS_PDFS_FOLDERNAME
-      );
+      let supabaseKYCDocumentUrl: string = "";
+      // if not exists controll this
+
+      if (kycDocumentFile) {
+        supabaseKYCDocumentUrl = await SupabaseService.uploadFile(
+          kycDocumentFile,
+          kycDocumentFile.originalname,
+          "application/pdf",
+          config.SUPABASE_BUCKET_NAME,
+          config.SUPABASE_HELPER_KYCDOCUMENTS_PDFS_FOLDERNAME
+        );
+      }
 
       const additionalDocumentUrls = await Promise.all(
         additionalDocumentFiles.map((additonalDocumentFile) =>

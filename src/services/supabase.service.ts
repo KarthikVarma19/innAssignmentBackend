@@ -1,11 +1,15 @@
 import { supabase } from "../config/supabase.config";
 
+interface UploadedFile {
+  buffer: Buffer;
+}
+
 export const SupabaseService = {
   /**
    * Upload a file to Supabase Storage
    */
   async uploadFile(
-    file: Express.Multer.File,
+    file: UploadedFile,
     originalname: string,
     mimetype: string,
     bucketName: string,
@@ -15,9 +19,29 @@ export const SupabaseService = {
 
     const { error } = await supabase.storage
       .from(bucketName)
-      .upload(filePath, file.buffer, { upsert: true, contentType: mimetype });
+      .upload(filePath, file.buffer, { contentType: mimetype });
+    // upsert: true,
 
     if (error) throw new Error(`Supabase upload failed: ${error.message}`);
+
+    return this.getPublicUrl(bucketName, filePath);
+  },
+
+  async uploadFileBuffer(
+    fileBuffer: Buffer,
+    fileName: string,
+    mimeType: string,
+    bucketName: string,
+    folderName: string
+  ): Promise<string> {
+    const filePath = `${folderName}/${fileName}`;
+
+    const { data, error } = await supabase.storage.from(bucketName).upload(filePath, fileBuffer, {
+      contentType: mimeType,
+      upsert: true,
+    });
+
+    if (error) throw error;
 
     return this.getPublicUrl(bucketName, filePath);
   },

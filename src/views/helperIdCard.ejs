@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title><%=helperName%>-ID-Card.pdf</title>
+    <style>
+        body {
+            margin: 10px;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 415px;
+            width: 580px;
+        }
+
+        .id-card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+        }
+
+        .left-container {}
+
+        .right-container {
+            padding-top: 20px;
+        }
+
+        .helper-photo {
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .banner {
+            margin-top: 20px;
+        }
+
+        .warning {
+            font-size: 12px;
+            color: red;
+            margin-top: 10px;
+        }
+
+        .employee-photo-url {
+            border-radius: 50%;
+            height: 150px;
+            width: 150px;
+        }
+
+        .helper-meta-data {
+            text-align: center;
+        }
+
+        .helper-heading {
+            text-align: center;
+            font-size: 18px;
+            color: darkblue;
+            font-weight: bold;
+        }
+
+        .helper-service-type {
+            color: rgb(59, 59, 244);
+            margin-top: -10px;
+        }
+
+        .helper-employee-id {
+            color: #ff6700;
+            margin-top: -10px;
+            font-weight: 600;
+        }
+
+        #QrCodePlaceHolder {
+            margin-top: -10px;
+            text-align: center;
+        }
+
+        #QrCode2PlaceHolder {
+            text-align: center;
+        }
+
+        .asbl-banner-left-footer-container {
+            background-color: #ff6700;
+            text-align: center;
+        }
+
+        .asbl-springs-image {
+            height: 30px;
+            width: auto;
+            padding: 0px 10px;
+        }
+
+        .right-banner-container {
+            background-color: #ff6700;
+            text-align: center;
+        }
+
+        .asbl-banner-image {
+            height: 30px;
+            width: auto;
+        }
+
+        .employee-details-container {
+            margin-top: 15px;
+            background-color: #ff6700;
+            color: white;
+            padding: 10px;
+            font-weight: 400;
+            font-size: 15px;
+            text-align: left;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var typeNumber = 10; // Increased typeNumber to support more data
+            var errorCorrectionLevel = 'L';
+            var qr1 = qrcode(typeNumber, errorCorrectionLevel);
+            var qr2 = qrcode(typeNumber, errorCorrectionLevel);
+            var qrData1 = `
+            ASBL SPRINGS ID CARD
+            Name: <%= helperName %>
+            Emp ID: <%= empId %>
+            Organization: <%= organization %>
+            Service: <%= serviceType %>
+            Phone: <%= phoneNumber %>
+            Joined: <%= joinedDate %>
+            `.trim();
+            var baseUrl = '<%= apiBaseUrl %>';
+            var qrData2 = baseUrl + 'api/helpers/<%= employee_id %>/id-card/verify';
+            qr1.addData(qrData1);
+            qr1.make();
+            qr2.addData(qrData2);
+            qr2.make();
+            document.getElementById('QrCodePlaceHolder').innerHTML = qr1.createImgTag();
+            document.getElementById('QrCode2PlaceHolder').innerHTML = qr2.createImgTag();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="id-card">
+        <!-- Left Container -->
+        <div class="left-container">
+            <!-- Helper Image -->
+            <div class="helper-photo">
+                <img src="<%= employeephotoUrl %>" alt="Photo of <%= helperName %>" crossorigin="anonymous"
+                    class="employee-photo-url"
+                    onerror="this.onerror=null;this.src='https://res.cloudinary.com/karthikvarma/image/upload/v1754843316/inn-assignement/helpers/assets/no-profile-picture_gldcyx.jpg';">
+                <!-- Helper Meta Data -->
+                <div class="helper-meta-data">
+                    <h2 class="helper-heading"><%= helperName %></h2>
+                </div>
+                <div>
+                    <p class="helper-service-type"> <%= serviceType %></p>
+                    <p class="helper-employee-id">#<%= empId %></p>
+                </div>
+            </div>
+            <!-- Scanner Container For Text-->
+            <div id="QrCodePlaceHolder">
+            </div>
+            <!-- ASBL Banner Container -->
+            <div class="asbl-banner-left-footer-container">
+                <img src="https://res.cloudinary.com/karthikvarma/image/upload/v1754840316/inn-assignement/helpers/assets/Banner_ASBL_Springs_Logo_leltef.png"
+                    crossorigin="anonymous" alt="ASBL Banner" class="asbl-springs-image">
+            </div>
+        </div>
+        <!-- Right Container -->
+        <div class="right-container">
+            <!-- Banner Container -->
+            <div class="right-banner-container">
+                <img src="https://res.cloudinary.com/karthikvarma/image/upload/v1754840316/inn-assignement/helpers/assets/Banner_ASBL_Springs_Logo_leltef.png"
+                    crossorigin="anonymous" alt="ASBL Banner" class="asbl-banner-image">
+            </div>
+            <!-- Employee Details Table Container -->
+            <div class="employee-details-container">
+                <p>Organization&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    : &nbsp;&nbsp;&nbsp;&nbsp;<%= organization %></p>
+                <p>Emp
+                    ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    :
+                    &nbsp;&nbsp;&nbsp;&nbsp;<%= empId %></p>
+                <p>Phone number&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;&nbsp; <%= phoneNumber %></p>
+                <p>Joined date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    :&nbsp;&nbsp;&nbsp;&nbsp; <%= joinedDate %></p>
+            </div>
+            <!-- Scanner Container For Redirecting-->
+            <div id="QrCode2PlaceHolder">
+            </div>
+            <!-- Warning Container -->
+            <div class="warning">
+                Unauthorized usage of someone else's card is a legal offense.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
