@@ -1,5 +1,4 @@
 import { join } from "path";
-import { readFileSync } from "fs";
 import { renderFile } from "ejs";
 import puppeteer from "puppeteer";
 
@@ -7,7 +6,7 @@ interface UserData {
   name: string;
   photoUrl: string;
   id: string;
-  [key: string]: any; // Extend as needed
+  [key: string]: any;
 }
 
 export async function generatePdf(userData: UserData): Promise<Buffer> {

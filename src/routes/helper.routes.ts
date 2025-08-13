@@ -21,5 +21,4 @@ helpersRouter.post("/", createHelper);
 helpersRouter.get("/", getAllHelpers);
 helpersRouter.get("/:id/id-card", getIDCard);
 helpersRouter.get("/:id/id-card/verify", verifyIDCard);
-
 export default helpersRouter;

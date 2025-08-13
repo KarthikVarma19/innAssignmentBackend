@@ -9,8 +9,7 @@ import { generatePdf } from "../utils/pdf-generator";
 import { compressPdfBufferToBuffer } from "../utils/file-compressor";
 import { SupabaseService } from "../services/supabase.service";
 import { config } from "../env";
-import { Readable } from "stream";
-
+import moment from "moment";
 export const getIDCard = async (req: Request, res: Response) => {
   try {
     // Generate ID card and save in the helper employee details identificard card
@@ -94,9 +93,8 @@ export const getIDCard = async (req: Request, res: Response) => {
 
     const pdfBuffer = await page.pdf({
       width: "610px",
-      height: "460px",
+      height: "500px",
       printBackground: true,
-      pageRanges: "1",
     });
 
     await browser.close();
@@ -110,7 +108,7 @@ export const getIDCard = async (req: Request, res: Response) => {
       helperFileName,
       "application/pdf",
       config.SUPABASE_BUCKET_NAME,
-      config.SUPABASE_HELPER_KYCDOCUMENTS_PDFS_FOLDERNAME
+      config.SUPABASE_HELPER_IDENTIFICATIONCARD_PDFS_FOLDERNAME
     );
 
     const updatedEmployee = await Employee.findByIdAndUpdate(
@@ -151,7 +149,7 @@ export const createHelper = async (req: Request, res: Response) => {
 
     // Parse joinedOn to Date if it's a string
     if (serviceDetails && typeof serviceDetails.joinedOn === "string") {
-      serviceDetails.joinedOn = new Date(serviceDetails.joinedOn);
+      serviceDetails.joinedOn = moment(req.body.serviceDetails.joinedOn, "DD/MM/YYYY").toDate();
     }
 
     const employeeId = await getNextEmployeeId();
@@ -300,6 +298,14 @@ export const updateHelper = async (req: Request, res: Response) => {
     }
 
     const { employee, ...helperUpdates } = req.body;
+
+    // Parse joinedOn to Date if it's a string (for update)
+    if (helperUpdates.serviceDetails && typeof helperUpdates.serviceDetails.joinedOn === "string") {
+      helperUpdates.serviceDetails.joinedOn = moment(
+        helperUpdates.serviceDetails.joinedOn,
+        "DD/MM/YYYY"
+      ).toDate();
+    }
 
     // 4️⃣ Update Helper collection with remaining fields
     const updatedHelper = await Helper.findByIdAndUpdate(

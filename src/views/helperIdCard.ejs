@@ -6,8 +6,8 @@
     <title><%=helperName%>-ID-Card.pdf</title>
     <style>
         body {
-            margin: 10px;
-            padding: 0;
+            margin: 0px;
+            padding: 0px;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
@@ -15,21 +15,27 @@
             justify-content: center;
             text-align: center;
             height: 415px;
-            width: 580px;
+            width: 600px;
+            margin-top: 20px;
         }
 
         .id-card {
             border: 1px solid #ccc;
-            padding: 20px;
             display: flex;
             flex-direction: row;
             gap: 30px;
+            margin: 10px;
+            padding: 15px;
+
         }
 
-        .left-container {}
+        .left-container {
+            width: 250px;
+        }
 
         .right-container {
             padding-top: 20px;
+            width: 250px;
         }
 
         .helper-photo {
@@ -44,14 +50,14 @@
 
         .warning {
             font-size: 12px;
-            color: red;
+            color: black;
             margin-top: 10px;
         }
 
         .employee-photo-url {
             border-radius: 50%;
-            height: 150px;
-            width: 150px;
+            height: 180px;
+            width: 180px;
         }
 
         .helper-meta-data {
@@ -83,6 +89,7 @@
 
         #QrCode2PlaceHolder {
             text-align: center;
+            margin-top: 10px;
         }
 
         .asbl-banner-left-footer-container {
@@ -112,7 +119,7 @@
             color: white;
             padding: 10px;
             font-weight: 400;
-            font-size: 15px;
+            font-size: 12px;
             text-align: left;
         }
     </style>
@@ -152,7 +159,7 @@
             <div class="helper-photo">
                 <img src="<%= employeephotoUrl %>" alt="Photo of <%= helperName %>" crossorigin="anonymous"
                     class="employee-photo-url"
-                    onerror="this.onerror=null;this.src='https://res.cloudinary.com/karthikvarma/image/upload/v1754843316/inn-assignement/helpers/assets/no-profile-picture_gldcyx.jpg';">
+                    onerror="this.onerror=null;this.src='https://res.cloudinary.com/karthikvarma/image/upload/v1754903134/inn-assignement/helpers/assets/no-profile-picture_lz2tzw.jpg';">
                 <!-- Helper Meta Data -->
                 <div class="helper-meta-data">
                     <h2 class="helper-heading"><%= helperName %></h2>
@@ -167,7 +174,7 @@
             </div>
             <!-- ASBL Banner Container -->
             <div class="asbl-banner-left-footer-container">
-                <img src="https://res.cloudinary.com/karthikvarma/image/upload/v1754840316/inn-assignement/helpers/assets/Banner_ASBL_Springs_Logo_leltef.png"
+                <img src="https://res.cloudinary.com/karthikvarma/image/upload/v1754903139/inn-assignement/helpers/assets/Banner_ASBL_Springs_Logo_ma7kfx.png"
                     crossorigin="anonymous" alt="ASBL Banner" class="asbl-springs-image">
             </div>
         </div>
@@ -175,7 +182,7 @@
         <div class="right-container">
             <!-- Banner Container -->
             <div class="right-banner-container">
-                <img src="https://res.cloudinary.com/karthikvarma/image/upload/v1754840316/inn-assignement/helpers/assets/Banner_ASBL_Springs_Logo_leltef.png"
+                <img src="https://res.cloudinary.com/karthikvarma/image/upload/v1754903139/inn-assignement/helpers/assets/Banner_ASBL_Springs_Logo_ma7kfx.png"
                     crossorigin="anonymous" alt="ASBL Banner" class="asbl-banner-image">
             </div>
             <!-- Employee Details Table Container -->
