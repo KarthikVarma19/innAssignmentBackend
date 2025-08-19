@@ -6,26 +6,26 @@
     <title><%=helperName%>-ID-Card.pdf</title>
     <style>
         body {
-            margin: 0px;
-            padding: 0px;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            height: 415px;
-            width: 600px;
+            height: 390px;
+            width: 590px;
             margin-top: 20px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
         }
 
         .id-card {
-            border: 1px solid #ccc;
+            /* border: 1px solid #ccc; */
             display: flex;
             flex-direction: row;
             gap: 30px;
-            margin: 10px;
-            padding: 15px;
+            padding: 10px 0px !important;
 
         }
 
@@ -56,8 +56,9 @@
 
         .employee-photo-url {
             border-radius: 50%;
-            height: 180px;
-            width: 180px;
+            height: 150px;
+            width: 150px;
+            margin-top: 5px;
         }
 
         .helper-meta-data {
@@ -95,12 +96,12 @@
         .asbl-banner-left-footer-container {
             background-color: #ff6700;
             text-align: center;
+            margin-bottom: 5px;
         }
 
         .asbl-springs-image {
             height: 30px;
             width: auto;
-            padding: 0px 10px;
         }
 
         .right-banner-container {

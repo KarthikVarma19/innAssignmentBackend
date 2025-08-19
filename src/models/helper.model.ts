@@ -1,45 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
-
-interface IKYCDocument {
-  type: string;
-  url: string;
-  filename: string;
-  filesize: number;
-}
-
-interface IAdditionalDocument {
-  name: string;
-  url: string;
-}
-
-interface IPersonalDetails {
-  fullName: string;
-  gender: string;
-  languages: string[];
-  phone: string;
-  email: string;
-  kycDocument: IKYCDocument;
-  additionalDocuments: IAdditionalDocument[];
-}
-
-interface IServiceDetails {
-  type: string;
-  organization: string;
-  assignedHouseholds: string[];
-  joinedOn: Date;
-}
-
-interface IVehicleDetails {
-  type: string;
-  number?: string;
-}
-
-export interface IHelper extends Document {
-  personalDetails: IPersonalDetails;
-  serviceDetails: IServiceDetails;
-  vehicleDetails: IVehicleDetails;
-  employee: mongoose.Types.ObjectId;
-}
+import { gender, kycDocumentType, serviceType, vehicleType } from "../constants/enum";
+import { IHelper } from "../interfaces/helper.interface";
 
 const HelperSchema: Schema = new Schema<IHelper>(
   {
@@ -47,7 +8,7 @@ const HelperSchema: Schema = new Schema<IHelper>(
       fullName: { type: String, required: true },
       gender: {
         type: String,
-        enum: ["Male", "Female", "Other"],
+        enum: Object.values(gender),
         required: true,
       },
       languages: [{ type: String }],
@@ -56,7 +17,7 @@ const HelperSchema: Schema = new Schema<IHelper>(
       kycDocument: {
         type: {
           type: String,
-          enum: ["Aadhar Card", "PAN Card", "Voter ID", "Passport"],
+          enum: Object.values(kycDocumentType),
           required: true,
         },
         url: { type: String, required: true },
@@ -73,7 +34,7 @@ const HelperSchema: Schema = new Schema<IHelper>(
     serviceDetails: {
       type: {
         type: String,
-        enum: ["Maid", "Cook", "Nurse", "Driver"],
+        enum: Object.values(serviceType),
         required: true,
       },
       organization: { type: String, required: true },
@@ -83,7 +44,7 @@ const HelperSchema: Schema = new Schema<IHelper>(
     vehicleDetails: {
       type: {
         type: String,
-        enum: ["None", "Auto", "Bike", "Car"],
+        enum: Object.values(vehicleType),
         required: true,
       },
       number: { type: String },

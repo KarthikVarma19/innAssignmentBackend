@@ -1,18 +1,20 @@
 import puppeteer from "puppeteer";
 import path from "path";
 import ejs from "ejs";
-import { Response, Request } from "express";
-import { Helper, IHelper } from "../models/helper.model";
+import moment from "moment";
+import { Request as ExpressRequest, Response as ExpressResponse } from "express";
+import { Helper } from "../models/helper.model";
 import { Employee, IEmployee } from "../models/employee.model";
 import { Counter } from "../models/counter.model";
 import { generatePdf } from "../utils/pdf-generator";
 import { compressPdfBufferToBuffer } from "../utils/file-compressor";
 import { SupabaseService } from "../services/supabase.service";
-import { config } from "../env";
-import moment from "moment";
-export const getIDCard = async (req: Request, res: Response) => {
+import { APP_CONFIG } from "../env";
+import { IHelperIdCardData } from "../interfaces/idcard.interface";
+
+// Generate ID card and save in the helper employee details identificard card
+export const generateIDCard = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
-    // Generate ID card and save in the helper employee details identificard card
     const formatDate = (date: Date) => {
       const d = new Date(date);
       const day = String(d.getDate()).padStart(2, "0");
@@ -26,15 +28,9 @@ export const getIDCard = async (req: Request, res: Response) => {
         return "";
       }
       const countryCodes = [
-        212, 213, 216, 218, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233,
-        234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
-        252, 253, 254, 255, 256, 257, 258, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 290,
-        291, 297, 298, 299, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 370, 371, 372, 373,
-        374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 385, 386, 387, 389, 590, 591, 592, 593,
-        594, 595, 596, 597, 598, 599, 670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681,
-        682, 683, 685, 686, 687, 688, 689, 690, 691, 692, 850, 852, 853, 855, 856, 880, 886, 1, 20,
-        27, 30, 31, 32, 33, 34, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 52, 53, 54, 55, 56,
-        57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 7, 81, 82, 84, 86, 90, 91, 92, 93, 94, 95, 98,
+        212, 213, 216, 218, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 290, 291, 297, 298, 299, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379,
+        380, 381, 382, 383, 385, 386, 387, 389, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599, 670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 685, 686, 687, 688, 689, 690, 691, 692, 850, 852, 853, 855, 856, 880, 886, 1, 20, 27, 30, 31, 32, 33, 34, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 7, 81, 82, 84, 86,
+        90, 91, 92, 93, 94, 95, 98,
       ].sort((a, b) => b.toString().length - a.toString().length);
 
       let countryCode = 91;
@@ -51,10 +47,7 @@ export const getIDCard = async (req: Request, res: Response) => {
       return "+" + countryCode + " " + restPhone;
     };
 
-    const helper = await Helper.findById(req.params.id).populate(
-      "employee",
-      "employeeName employeephotoUrl identificationCardUrl employeeId _id"
-    );
+    const helper = await Helper.findById(req.params.id).populate("employee", "employeeName employeephotoUrl identificationCardUrl employeeId _id");
 
     const EMPLOYEE_MONGODB_ID = helper?.employee._id;
 
@@ -62,16 +55,12 @@ export const getIDCard = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Helper not found" });
     }
 
-    // Type assertion to treat employee as populated IEmployee
     const employee = helper.employee as unknown as IEmployee | undefined;
     const data = {
-      apiBaseUrl: config.API_URL,
+      apiBaseUrl: APP_CONFIG.API_URL,
       employee_id: helper.employee._id,
       helperName: helper.personalDetails.fullName,
-      employeephotoUrl:
-        employee && "employeephotoUrl" in employee
-          ? employee.employeephotoUrl
-          : `https://ui-avatars.com/api/?name=${helper.personalDetails.fullName}&background=random&color=fff&rounded=true&bold=true&size=32`,
+      employeephotoUrl: employee && "employeephotoUrl" in employee ? employee.employeephotoUrl : `https://ui-avatars.com/api/?name=${helper.personalDetails.fullName}&background=random&color=fff&rounded=true&bold=true&size=32`,
       serviceType: helper.serviceDetails.type,
       empId: employee && "employeeId" in employee ? employee.employeeId : "",
       organization: helper.serviceDetails.organization,
@@ -81,8 +70,6 @@ export const getIDCard = async (req: Request, res: Response) => {
 
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     res.setHeader("Content-Security-Policy", "img-src 'self' data: https://res.cloudinary.com;");
-    // Render EJS template for preview (for debugging, not for production PDF)
-    // return res.render("helperIdCard", data); // Uncomment if you want to render EJS in Express (requires view engine setup)
 
     const templatePath = path.join(process.cwd(), "src/views/helperIdCard.ejs");
     const htmlContent = await ejs.renderFile(templatePath, data, { async: true });
@@ -92,8 +79,8 @@ export const getIDCard = async (req: Request, res: Response) => {
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
     const pdfBuffer = await page.pdf({
-      width: "610px",
-      height: "500px",
+      width: "650px",
+      height: "400px",
       printBackground: true,
     });
 
@@ -103,19 +90,9 @@ export const getIDCard = async (req: Request, res: Response) => {
 
     const helperFileName = data.helperName.split(" ").join("-").toLowerCase() + "-id-card" + ".pdf";
 
-    const supabaseIDCARDDocumentUrl = await SupabaseService.uploadFileBuffer(
-      compressedPdfBuffer,
-      helperFileName,
-      "application/pdf",
-      config.SUPABASE_BUCKET_NAME,
-      config.SUPABASE_HELPER_IDENTIFICATIONCARD_PDFS_FOLDERNAME
-    );
+    const supabaseIDCARDDocumentUrl = await SupabaseService.uploadFileBuffer(compressedPdfBuffer, helperFileName, "application/pdf", APP_CONFIG.SUPABASE_BUCKET_NAME, APP_CONFIG.SUPABASE_HELPER_IDENTIFICATIONCARD_PDFS_FOLDERNAME);
 
-    const updatedEmployee = await Employee.findByIdAndUpdate(
-      EMPLOYEE_MONGODB_ID,
-      { identificationCardUrl: supabaseIDCARDDocumentUrl },
-      { new: true }
-    );
+    const updatedEmployee = await Employee.findByIdAndUpdate(EMPLOYEE_MONGODB_ID, { identificationCardUrl: supabaseIDCARDDocumentUrl }, { new: true });
 
     res.status(200).json({ result: "Succesfully Fetched ID Card", data: updatedEmployee });
   } catch (error) {
@@ -124,7 +101,8 @@ export const getIDCard = async (req: Request, res: Response) => {
   }
 };
 
-export const verifyIDCard = async (req: Request, res: Response) => {
+// Redirects User to the Request ID-Card
+export const getIDCard = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
     const EMPLOYEE_ID = req.params.id;
     const employee = await Employee.findById(EMPLOYEE_ID).select("identificationCardUrl");
@@ -141,11 +119,9 @@ export const verifyIDCard = async (req: Request, res: Response) => {
   }
 };
 
-export const createHelper = async (req: Request, res: Response) => {
+export const createHelper = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
     const { personalDetails, serviceDetails, vehicleDetails, employee } = req.body;
-
-    console.log(req.body);
 
     // Parse joinedOn to Date if it's a string
     if (serviceDetails && typeof serviceDetails.joinedOn === "string") {
@@ -206,19 +182,14 @@ export const createHelper = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllHelpers = async (_: Request, res: Response) => {
-  const helpers = await Helper.find()
-    .populate("employee", "employeeId employeephotoUrl identificationCardUrl")
-    .skip(10730)
-    .limit(100);
+export const getAllHelpers = async (_: ExpressRequest, res: ExpressResponse) => {
+  const helpers = await Helper.find().populate("employee", "employeeId employeephotoUrl identificationCardUrl").skip(10730).limit(100);
   res.json(helpers);
 };
 
-export const getAllHelpersMetaData = async (req: Request, res: Response) => {
+export const getAllHelpersMetaData = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
-    const helpers = await Helper.find({})
-      .populate("employee", "employeeName employeephotoUrl")
-      .select("serviceDetails.type serviceDetails.assignedHouseholds employee _id");
+    const helpers = await Helper.find({}).populate("employee", "employeeName employeephotoUrl").select("serviceDetails.type serviceDetails.assignedHouseholds employee _id");
     const metadata = helpers.map((helper) => ({
       name: (helper.employee as any).employeeName,
       photoUrl: (helper.employee as any).employeephotoUrl,
@@ -232,31 +203,133 @@ export const getAllHelpersMetaData = async (req: Request, res: Response) => {
   }
 };
 
-export const getHelpersPaged = async (req: Request, res: Response) => {
+export const getHelpersPaged = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
     const { offset = 1, limit = 10 } = req.query;
 
-    let pageNumber = Number.isNaN(Number(offset)) ? 1 : parseInt(offset as string, 10);
+    const { filterOptions } = req.body;
+
+    let pageNumber = Number.isNaN(Number(offset)) ? 0 : parseInt(offset as string, 10);
     const pageSize = Number.isNaN(Number(limit)) ? 10 : parseInt(limit as string, 10);
 
     // Ensure pageNumber is at least 1
     pageNumber = pageNumber < 1 ? 1 : pageNumber;
 
-    const total = await Helper.countDocuments();
     const skip = (pageNumber - 1) * pageSize;
+    const total = await Helper.countDocuments();
 
-    const helpers = await Helper.find()
-      .populate("employee", "employeeId employeephotoUrl identificationCardUrl")
-      .skip(skip)
-      .limit(pageSize);
+    // Build aggregation pipeline for advanced filtering and sorting
+    const pipeline: any[] = [];
+
+    // Join with Employee collection
+    pipeline.push({
+      $lookup: {
+        from: "employees",
+        localField: "employee",
+        foreignField: "_id",
+        as: "employee",
+      },
+    });
+    pipeline.push({ $unwind: "$employee" });
+
+    // Filtering
+    const match: any = {};
+
+    if (filterOptions) {
+      // Filter by serviceTypes
+      if (Array.isArray(filterOptions.serviceTypes) && filterOptions.serviceTypes.length > 0) {
+        match["serviceDetails.type"] = { $in: filterOptions.serviceTypes };
+      }
+      // Filter by organizations
+      if (Array.isArray(filterOptions.organizations) && filterOptions.organizations.length > 0) {
+        match["serviceDetails.organization"] = { $in: filterOptions.organizations };
+      }
+      // Filter by joining date range
+      if (filterOptions.joiningStartDate || filterOptions.joiningEndDate) {
+        const joinedOnFilter: any = {};
+        if (filterOptions.joiningStartDate) {
+          // Parse date string to Date object (assuming format "DD/MM/YYYY")
+          joinedOnFilter.$gte = new Date(filterOptions.joiningStartDate);
+        }
+        if (filterOptions.joiningEndDate) {
+          joinedOnFilter.$lte = new Date(filterOptions.joiningEndDate);
+        }
+        if (Object.keys(joinedOnFilter).length > 0) {
+          match["serviceDetails.joinedOn"] = joinedOnFilter;
+        }
+      }
+      // Search by name, employeeId, or phone
+      if (filterOptions.searchHelperBasedOnNameEmployeeIdPhone && typeof filterOptions.searchHelperBasedOnNameEmployeeIdPhone === "string" && filterOptions.searchHelperBasedOnNameEmployeeIdPhone.trim() !== "") {
+        const search = filterOptions.searchHelperBasedOnNameEmployeeIdPhone.trim();
+        if (!match.$or) match.$or = [];
+        match.$or.push({ "personalDetails.fullName": { $regex: search, $options: "i" } }, { "personalDetails.phone": { $regex: search, $options: "i" } });
+      }
+      if (filterOptions.searchHelperBasedOnNameEmployeeIdPhone && !isNaN(Number(filterOptions.searchHelperBasedOnNameEmployeeIdPhone))) {
+        const search = Number(filterOptions.searchHelperBasedOnNameEmployeeIdPhone);
+        if (!match.$or) match.$or = [];
+        match.$or.push({ "employee.employeeId": search });
+      }
+    }
+
+    if (Object.keys(match).length > 0) {
+      pipeline.push({ $match: match });
+    }
+
+    // Sorting
+    let sort: any = {};
+    if (filterOptions && filterOptions.sortby) {
+      // Only allow sorting by whitelisted fields
+      const allowedSortFields = ["employeeName", "employeeId"];
+      if (allowedSortFields.includes(filterOptions.sortby)) {
+        // Map to the correct field in the aggregation result
+        if (filterOptions.sortby === "employeeName") {
+          sort["employee.employeeName"] = 1;
+        } else if (filterOptions.sortby === "employeeId") {
+          sort["employee.employeeId"] = 1;
+        }
+      }
+    }
+    if (Object.keys(sort).length > 0) {
+      pipeline.push({ $sort: sort });
+    } else {
+      pipeline.push({ $sort: { "employee.employeeName": 1 } });
+    }
+
+    // Pagination
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: pageSize });
+
+    // // Project only required fields
+    // pipeline.push({
+    //   $project: {
+    //     _id: 1,
+    //     personalDetails: 1,
+    //     serviceDetails: 1,
+    //     vehicleDetails: 1,
+    //     employee: {
+    //       employeeId: 1,
+    //       employeephotoUrl: 1,
+    //       identificationCardUrl: 1,
+    //       employeeName: 1,
+    //     },
+    //   },
+    // });
+
+    const helpers = await Helper.aggregate(pipeline);
+    const filteredTotalDocuments = helpers.length;
+    // const helpers = await Helper.find()
+    //   .populate("employee", "employeeId employeephotoUrl identificationCardUrl")
+    //   .skip(skip)
+    //   .limit(pageSize);
 
     res.status(200).json({
       data: helpers,
       meta: {
         total,
+        filteredTotal: filteredTotalDocuments,
         page: pageNumber,
         limit: pageSize,
-        totalPages: Math.ceil(total / pageSize),
+        totalPages: Math.ceil(filteredTotalDocuments / pageSize),
       },
     });
   } catch (error) {
@@ -264,12 +337,9 @@ export const getHelpersPaged = async (req: Request, res: Response) => {
   }
 };
 
-export const getHelperById = async (req: Request, res: Response) => {
+export const getHelperById = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
-    const helper = await Helper.findById(req.params.id).populate(
-      "employee",
-      "employeeName employeephotoUrl identificationCardUrl employeeId"
-    );
+    const helper = await Helper.findById(req.params.id).populate("employee", "employeeName employeephotoUrl identificationCardUrl employeeId");
     if (!helper) {
       return res.status(404).json({ error: "Helper not found" });
     }
@@ -279,7 +349,7 @@ export const getHelperById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateHelper = async (req: Request, res: Response) => {
+export const updateHelper = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
     const helper = await Helper.findById(req.params.id);
     if (!helper) {
@@ -301,32 +371,23 @@ export const updateHelper = async (req: Request, res: Response) => {
 
     // Parse joinedOn to Date if it's a string (for update)
     if (helperUpdates.serviceDetails && typeof helperUpdates.serviceDetails.joinedOn === "string") {
-      helperUpdates.serviceDetails.joinedOn = moment(
-        helperUpdates.serviceDetails.joinedOn,
-        "DD/MM/YYYY"
-      ).toDate();
+      helperUpdates.serviceDetails.joinedOn = moment(helperUpdates.serviceDetails.joinedOn, "DD/MM/YYYY").toDate();
     }
 
     // 4️⃣ Update Helper collection with remaining fields
-    const updatedHelper = await Helper.findByIdAndUpdate(
-      req.params.id,
-      { $set: helperUpdates },
-      { new: true }
-    ).populate("employee"); // optional: to return updated employee details too
+    const updatedHelper = await Helper.findByIdAndUpdate(req.params.id, { $set: helperUpdates }, { new: true }).populate("employee"); // optional: to return updated employee details too
 
     res.status(200).json({
       result: "Helper Succesfully Updated",
       data: updatedHelper,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Update Failed" });
   }
 };
 
-export const deleteHelperById = async (req: Request, res: Response) => {
-  console.log("deleted controller");
-  console.log(req.params.id);
+export const deleteHelperById = async (req: ExpressRequest, res: ExpressResponse) => {
+  
   const id = req.params.id;
   try {
     const deleted = await Helper.findOneAndDelete({ _id: id });
@@ -340,16 +401,12 @@ export const deleteHelperById = async (req: Request, res: Response) => {
 };
 
 const getNextEmployeeId = async (): Promise<number> => {
-  const counter = await Counter.findByIdAndUpdate(
-    { _id: "employeeId" },
-    { $inc: { seq: 1 } },
-    { new: true, upsert: true }
-  );
+  const counter = await Counter.findByIdAndUpdate({ _id: "employeeId" }, { $inc: { seq: 1 } }, { new: true, upsert: true });
   return counter.seq;
 };
 
-export const downloadIdCard = async (req: Request, res: Response) => {
-  const userData = req.body;
+export const downloadIdCard = async (req: ExpressRequest, res: ExpressResponse) => {
+  const userData: IHelperIdCardData = req.body;
 
   try {
     const pdf = await generatePdf(userData);
@@ -362,16 +419,3 @@ export const downloadIdCard = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to generate ID card" });
   }
 };
-
-interface MulterFileLike {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-  buffer: Buffer;
-  destination: string;
-  filename: string;
-  path: string;
-  stream?: any;
-}

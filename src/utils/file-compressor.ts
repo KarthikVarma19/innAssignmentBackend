@@ -7,16 +7,12 @@ export async function compressImageBufferToBuffer(
 ): Promise<Buffer> {
   try {
     const compressedBuffer = await sharp(fileBuffer).jpeg({ quality }).toBuffer();
-
     return compressedBuffer;
   } catch (error) {
     console.error("Error compressing image:", error);
     throw error;
   }
 }
-
-
-
 
 
 export async function compressPdfBufferToBuffer(pdfBuffer: Buffer): Promise<Buffer> {

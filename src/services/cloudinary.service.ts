@@ -1,27 +1,21 @@
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 
 export class CloudinaryService {
-  async uploadFile(
-    fileBuffer: Buffer,
-    folderName: string,
-    fileName: string
-  ): Promise<UploadApiResponse> {
-    // const filenameWithoutExt = originalname.replace(/\.[^/.]+$/, "");
-
+  async uploadFile(fileBuffer: Buffer, folderName: string, fileName: string): Promise<UploadApiResponse> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
           {
-            resource_type: "auto", // folder === "pdfs" ? "auto" : "image",
+            resource_type: "auto",
             type: "upload",
             secure: true,
             use_filename: true,
-            folder: folderName, // `inn-assignment/user_${folder}`,
+            unique_filename: false,
+            folder: folderName,
             public_id: fileName,
           },
           (error, result) => {
             if (error) return reject(error);
-            // also return result.public_id store it in the db
             if (result) return resolve(result);
             reject("Unknown error");
           }

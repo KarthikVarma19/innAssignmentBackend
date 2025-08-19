@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
-import { config } from "../env";
+import { APP_CONFIG } from "../env";
 
-export const supabase = createClient(config.SUPABASE_API_URL, config.SUPABASE_API_KEY);
+export const supabase = createClient(APP_CONFIG.SUPABASE_API_URL, APP_CONFIG.SUPABASE_API_KEY);
 
-export async function checkSupabaseConnection() {
+export async function verifySupabaseServiceConnection() {
   try {
     await supabase.storage.listBuckets();
     console.log("Supabase Connected");

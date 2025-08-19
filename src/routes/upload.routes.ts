@@ -1,33 +1,13 @@
-import express, { Router, Response } from "express";
-import { uploadPdfHandler, uploadImageHandler } from "../controllers/upload.controller";
+import { Router } from "express";
+import { uploadPdfHandler, uploadImageHandler, uploadMultipleFilesHandler } from "../controllers/upload.controller";
 import { upload } from "../config/multer.config";
 import multer from "multer";
+const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 const uploadRouter = Router();
 
-import type { Request } from "express";
-import { uploadToCloudinary, uploadImage, uploadPdf } from "../config/cloudinary.config";
-import { SupabaseService } from "../services/supabase.service";
-import { config } from "../env";
-import { compressImageBufferToBuffer, compressPdfBufferToBuffer } from "../utils/file-compressor";
-
-uploadRouter.post(
-  "/image",
-  upload.single("file"),
-  async (req: Request, res: Response): Promise<void> => {
-    await uploadImageHandler(req, res);
-  }
-);
-
-uploadRouter.post(
-  "/pdf",
-  upload.single("file"),
-  async (req: Request, res: Response): Promise<void> => {
-    await uploadPdfHandler(req, res);
-  }
-);
-const memoryUpload = multer({ storage: multer.memoryStorage() });
-
+uploadRouter.post("/image", upload.single("file"), uploadImageHandler);
+uploadRouter.post("/pdf", upload.single("file"), uploadPdfHandler);
 uploadRouter.post(
   "/multiple",
   memoryUpload.fields([
@@ -35,95 +15,7 @@ uploadRouter.post(
     { name: "kycDocument", maxCount: 1 },
     { name: "additionalDocuments", maxCount: 10 },
   ]),
-  async (req, res) => {
-    try {
-      // Ensure req.files is defined and has the expected structure
-      const files = (req.files as { [fieldname: string]: Express.Multer.File[] }) || {};
-      let profilePicFile: Express.Multer.File | undefined;
-      let kycDocumentFile: Express.Multer.File | undefined;
-
-      let additionalDocumentFiles: Express.Multer.File[] = [];
-
-      if (files.profilePic && files.profilePic.length > 0) {
-        profilePicFile = files.profilePic[0];
-      }
-
-      if (files.kycDocument && files.kycDocument.length > 0) {
-        kycDocumentFile = files.kycDocument[0];
-      }
-
-      if (files.additionalDocuments && files.additionalDocuments.length > 0) {
-        additionalDocumentFiles = files.additionalDocuments;
-      }
-
-      // Compress profilePicFile if it exists
-      if (profilePicFile) {
-        profilePicFile.buffer = await compressImageBufferToBuffer(profilePicFile.buffer);
-      }
-
-      // Compress kycDocumentFile if it exists
-      if (kycDocumentFile) {
-        kycDocumentFile.buffer = await compressPdfBufferToBuffer(kycDocumentFile.buffer);
-      }
-
-      // Compress Additional Documents if it exits
-      if (additionalDocumentFiles.length > 0) {
-        for (const additionalDocumentFile of additionalDocumentFiles) {
-          additionalDocumentFile.buffer = await compressPdfBufferToBuffer(
-            additionalDocumentFile.buffer
-          );
-        }
-      }
-
-
-      let cloudinaryProfilePicUrl: string = "";
-      if (profilePicFile) {
-        cloudinaryProfilePicUrl = await uploadToCloudinary(
-          profilePicFile.buffer,
-          config.CLOUDINARY_CLOUD_PROFILEPICS_IMAGES_FOLDERNAME,
-          profilePicFile.originalname
-        );
-      }
-      // profile pics link
-
-      let supabaseKYCDocumentUrl: string = "";
-      // if not exists controll this
-
-      if (kycDocumentFile) {
-        supabaseKYCDocumentUrl = await SupabaseService.uploadFile(
-          kycDocumentFile,
-          kycDocumentFile.originalname,
-          "application/pdf",
-          config.SUPABASE_BUCKET_NAME,
-          config.SUPABASE_HELPER_KYCDOCUMENTS_PDFS_FOLDERNAME
-        );
-      }
-
-      const additionalDocumentUrls = await Promise.all(
-        additionalDocumentFiles.map((additonalDocumentFile) =>
-          SupabaseService.uploadFile(
-            additonalDocumentFile,
-            additonalDocumentFile.originalname,
-            "application/pdf",
-            config.SUPABASE_BUCKET_NAME,
-            config.SUPABASE_HELPER_ADDITIONAL_DOCUMENTS_PDFS_FOLDERNAME
-          )
-        )
-      );
-
-      return res.json({
-        message: "Files uploaded successfully",
-        uploaded: {
-          profilePic: cloudinaryProfilePicUrl,
-          kycDocument: supabaseKYCDocumentUrl,
-          additionalDocuments: additionalDocumentUrls,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Upload failed", error: err });
-    }
-  }
+  uploadMultipleFilesHandler
 );
 
 export default uploadRouter;

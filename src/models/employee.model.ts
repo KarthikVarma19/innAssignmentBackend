@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { employeeDepartment } from "../constants/enum";
 
 export interface IEmployee {
   employeeId: number;
@@ -12,7 +13,12 @@ const EmployeeSchema: Schema = new Schema(
   {
     employeeId: { type: Number, unique: true, index: true, required: true },
     employeeName: { type: String, required: true },
-    employeeDepartment: { type: String, required: true, index: true },
+    employeeDepartment: {
+      type: String,
+      enum: Object.values(employeeDepartment),
+      required: true,
+      index: true,
+    },
     employeephotoUrl: {
       type: String,
       required: true,

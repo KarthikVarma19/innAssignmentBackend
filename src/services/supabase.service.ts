@@ -8,32 +8,17 @@ export const SupabaseService = {
   /**
    * Upload a file to Supabase Storage
    */
-  async uploadFile(
-    file: UploadedFile,
-    originalname: string,
-    mimetype: string,
-    bucketName: string,
-    folder: string
-  ): Promise<string> {
+  async uploadFile(file: UploadedFile, originalname: string, mimetype: string, bucketName: string, folder: string): Promise<string> {
     const filePath = folder ? `${folder}/${originalname}` : originalname;
 
-    const { error } = await supabase.storage
-      .from(bucketName)
-      .upload(filePath, file.buffer, { contentType: mimetype });
-    // upsert: true,
+    const { error } = await supabase.storage.from(bucketName).upload(filePath, file.buffer, { contentType: mimetype, upsert: true });
 
     if (error) throw new Error(`Supabase upload failed: ${error.message}`);
 
     return this.getPublicUrl(bucketName, filePath);
   },
 
-  async uploadFileBuffer(
-    fileBuffer: Buffer,
-    fileName: string,
-    mimeType: string,
-    bucketName: string,
-    folderName: string
-  ): Promise<string> {
+  async uploadFileBuffer(fileBuffer: Buffer, fileName: string, mimeType: string, bucketName: string, folderName: string): Promise<string> {
     const filePath = `${folderName}/${fileName}`;
 
     const { data, error } = await supabase.storage.from(bucketName).upload(filePath, fileBuffer, {
@@ -51,7 +36,6 @@ export const SupabaseService = {
    */
   getPublicUrl(bucketName: string, filePath: string): string {
     const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
-    console.log(data.publicUrl);
     return data.publicUrl;
   },
 

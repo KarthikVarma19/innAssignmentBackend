@@ -1,14 +1,16 @@
-// DB connection logic
-
 import mongoose from "mongoose";
-import { config } from "../env";
+import { APP_CONFIG } from "../env";
 
-export const connectDB = async () => {
+/** 
+ * Connects to MongoDB using the URI from environment configuration.
+ * Exits the process if connection fails.
+ */
+export const connectToMongoDB = async () => {
   try {
-    if (!config.MONGO_URI) {
+    if (!APP_CONFIG.MONGO_URI) {
       throw new Error("MONGO_URI is not found");
     }
-    await mongoose.connect(config.MONGO_URI as string);
+    await mongoose.connect(APP_CONFIG.MONGO_URI as string);
     console.log("Mongodb Connected");
   } catch (error) {
     console.error(error);

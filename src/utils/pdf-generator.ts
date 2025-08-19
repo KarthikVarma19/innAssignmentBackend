@@ -1,15 +1,9 @@
 import { join } from "path";
 import { renderFile } from "ejs";
 import puppeteer from "puppeteer";
+import { IHelperIdCardData } from "../interfaces/idcard.interface";
 
-interface UserData {
-  name: string;
-  photoUrl: string;
-  id: string;
-  [key: string]: any;
-}
-
-export async function generatePdf(userData: UserData): Promise<Buffer> {
+export async function generatePdf(userData: IHelperIdCardData): Promise<Buffer> {
   const filePath = join(__dirname, "../views/helperIdCard.ejs");
 
   const html = await renderFile(filePath, { user: userData });
