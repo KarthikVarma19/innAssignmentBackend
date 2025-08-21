@@ -80,7 +80,7 @@ export const generateIDCard = async (req: ExpressRequest, res: ExpressResponse) 
 
     const pdfBuffer = await page.pdf({
       width: "650px",
-      height: "400px",
+      height: "435px",
       printBackground: true,
     });
 
@@ -183,7 +183,7 @@ export const createHelper = async (req: ExpressRequest, res: ExpressResponse) =>
 };
 
 export const getAllHelpers = async (_: ExpressRequest, res: ExpressResponse) => {
-  const helpers = await Helper.find().populate("employee", "employeeId employeephotoUrl identificationCardUrl").skip(10730).limit(100);
+  const helpers = await Helper.find().populate("employee", "employeeId employeephotoUrl identificationCardUrl").limit(100);
   res.json(helpers);
 };
 
@@ -248,7 +248,6 @@ export const getHelpersPaged = async (req: ExpressRequest, res: ExpressResponse)
       if (filterOptions.joiningStartDate || filterOptions.joiningEndDate) {
         const joinedOnFilter: any = {};
         if (filterOptions.joiningStartDate) {
-          // Parse date string to Date object (assuming format "DD/MM/YYYY")
           joinedOnFilter.$gte = new Date(filterOptions.joiningStartDate);
         }
         if (filterOptions.joiningEndDate) {
@@ -278,10 +277,8 @@ export const getHelpersPaged = async (req: ExpressRequest, res: ExpressResponse)
     // Sorting
     let sort: any = {};
     if (filterOptions && filterOptions.sortby) {
-      // Only allow sorting by whitelisted fields
       const allowedSortFields = ["employeeName", "employeeId"];
       if (allowedSortFields.includes(filterOptions.sortby)) {
-        // Map to the correct field in the aggregation result
         if (filterOptions.sortby === "employeeName") {
           sort["employee.employeeName"] = 1;
         } else if (filterOptions.sortby === "employeeId") {
@@ -295,32 +292,11 @@ export const getHelpersPaged = async (req: ExpressRequest, res: ExpressResponse)
       pipeline.push({ $sort: { "employee.employeeName": 1 } });
     }
 
-    // Pagination
     pipeline.push({ $skip: skip });
     pipeline.push({ $limit: pageSize });
 
-    // // Project only required fields
-    // pipeline.push({
-    //   $project: {
-    //     _id: 1,
-    //     personalDetails: 1,
-    //     serviceDetails: 1,
-    //     vehicleDetails: 1,
-    //     employee: {
-    //       employeeId: 1,
-    //       employeephotoUrl: 1,
-    //       identificationCardUrl: 1,
-    //       employeeName: 1,
-    //     },
-    //   },
-    // });
-
     const helpers = await Helper.aggregate(pipeline);
     const filteredTotalDocuments = helpers.length;
-    // const helpers = await Helper.find()
-    //   .populate("employee", "employeeId employeephotoUrl identificationCardUrl")
-    //   .skip(skip)
-    //   .limit(pageSize);
 
     res.status(200).json({
       data: helpers,
@@ -358,23 +334,16 @@ export const updateHelper = async (req: ExpressRequest, res: ExpressResponse) =>
 
     const employeeId = helper.employee;
 
-    // 2️⃣ If employee object exists in body, update the Employee collection
     if (req.body.employee) {
-      await Employee.findByIdAndUpdate(
-        employeeId,
-        { $set: req.body.employee }, // update name, department, photo, idCard, etc.
-        { new: true }
-      );
+      await Employee.findByIdAndUpdate(employeeId, { $set: req.body.employee }, { new: true });
     }
 
     const { employee, ...helperUpdates } = req.body;
 
-    // Parse joinedOn to Date if it's a string (for update)
     if (helperUpdates.serviceDetails && typeof helperUpdates.serviceDetails.joinedOn === "string") {
       helperUpdates.serviceDetails.joinedOn = moment(helperUpdates.serviceDetails.joinedOn, "DD/MM/YYYY").toDate();
     }
 
-    // 4️⃣ Update Helper collection with remaining fields
     const updatedHelper = await Helper.findByIdAndUpdate(req.params.id, { $set: helperUpdates }, { new: true }).populate("employee"); // optional: to return updated employee details too
 
     res.status(200).json({
@@ -387,7 +356,6 @@ export const updateHelper = async (req: ExpressRequest, res: ExpressResponse) =>
 };
 
 export const deleteHelperById = async (req: ExpressRequest, res: ExpressResponse) => {
-  
   const id = req.params.id;
   try {
     const deleted = await Helper.findOneAndDelete({ _id: id });

@@ -18,10 +18,13 @@ export const SupabaseService = {
     return this.getPublicUrl(bucketName, filePath);
   },
 
+  /**
+   * Upload filebuffer to Supabase Storage
+   */
   async uploadFileBuffer(fileBuffer: Buffer, fileName: string, mimeType: string, bucketName: string, folderName: string): Promise<string> {
     const filePath = `${folderName}/${fileName}`;
 
-    const { data, error } = await supabase.storage.from(bucketName).upload(filePath, fileBuffer, {
+    const { error } = await supabase.storage.from(bucketName).upload(filePath, fileBuffer, {
       contentType: mimeType,
       upsert: true,
     });
@@ -32,7 +35,7 @@ export const SupabaseService = {
   },
 
   /**
-   * Get a public URL for a file
+   * Get a public URL for a file From Supabase Storage
    */
   getPublicUrl(bucketName: string, filePath: string): string {
     const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
